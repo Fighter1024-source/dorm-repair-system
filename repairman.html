@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>维修人员工作台</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif}
+        body{padding:30px;background:#f7fafc}
+        .container{max-width:1100px;margin:0 auto}
+        .header{background:#28a745;color:#fff;padding:14px 24px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:18px}
+        .logout-btn{background:#444;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer}
+        .box{background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 12px #00000012}
+        h3{margin-bottom:16px}
+        table{width:100%;border-collapse:collapse}
+        th,td{border:1px solid #eee;padding:10px;text-align:center;font-size:14px}
+        th{background:#eef5fb}
+        img{max-width:80px;max-height:80px;object-fit:cover;border-radius:4px}
+        .btn-group{margin-top:18px;text-align:center}
+        button{padding:6px 12px;border:none;border-radius:4px;cursor:pointer;margin:0 4px}
+        .btn-accept{background:#409eff;color:#fff}
+        .btn-finish{background:#67c23a;color:#fff}
+        .btn-del{background:#f56c6c;color:#fff}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <span>维修人员工作台</span>
+        <div>
+            <span id="welcome">欢迎维修员：</span>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="box">
+        <h3>全部报修工单</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>工单ID</th>
+                <th>宿舍号</th>
+                <th>报修内容</th>
+                <th>图片</th>
+                <th>当前状态</th>
+                <th>提交时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+        <div class="btn-group">
+            <button onclick="prevPage()">上一页</button>
+            <span id="pageInfo"></span>
+            <button onclick="nextPage()">下一页</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let orderPageNum = 1;
+    const orderPageSize = 5;
+    let loginUser = null;
+
+    try{
+        let storageStr = localStorage.getItem("loginUser");
+        if(storageStr){
+            loginUser = JSON.parse(storageStr);
+        }
+    }catch(e){
+        localStorage.removeItem("loginUser");
+    }
+
+    if(!loginUser || loginUser.role !== "repairman"){
+        location.href="/login.html";
+    }else{
+        document.getElementById("welcome").innerText = "欢迎维修员：" + loginUser.account;
+        loadAllOrder();
+    }
+
+    function loadAllOrder(){
+        fetch(`/api/repair/allPage?pageNum=${orderPageNum}&pageSize=${orderPageSize}`)
+            .then(res=>res.json())
+            .then(data=>{
+                let tbody = document.getElementById("tableBody");
+                tbody.innerHTML = "";
+                if(!data || !data.data || data.data.records.length === 0){
+                    tbody.innerHTML = `<tr><td colspan="7">暂无工单数据</td></tr>`;
+                    document.getElementById("pageInfo").innerText = `第${orderPageNum}页 / 总共0条`;
+                    return;
+                }
+                let list = data.data.records;
+                let total = data.data.total;
+                list.forEach(item=>{
+                    let imgHtml = "无";
+                    if(item.imgUrl){
+                        imgHtml = `<img src="${item.imgUrl}" alt="报修图片">`;
+                    }
+                    let opBtn = "";
+                    if(item.status === "待接单"){
+                        opBtn = `<button class="btn-accept" onclick="acceptOrder(${item.id})">接单</button>`;
+                    }else if(item.status === "维修中"){
+                        opBtn = `<button class="btn-finish" onclick="finishOrder(${item.id})">完成工单</button>`;
+                    }else if(item.status === "已完成"){
+                        opBtn = `<button class="btn-del" onclick="deleteOrder(${item.id})">删除工单</button>`;
+                    }
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${item.dormNo}</td>
+                            <td>${item.repairContent}</td>
+                            <td>${imgHtml}</td>
+                            <td>${item.status}</td>
+                            <td>${item.createTime}</td>
+                            <td>${opBtn}</td>
+                        </tr>
+                    `;
+                })
+                document.getElementById("pageInfo").innerText = `第${orderPageNum}页 / 总共${total}条`;
+            })
+            .catch(err=>{
+                console.error(err);
+                alert("加载工单失败");
+            })
+    }
+
+    //接单
+    function acceptOrder(id){
+        if(!confirm("确认接单？接单后工单状态变为维修中")) return;
+        fetch(`/api/repair/accept/${id}/${loginUser.id}`,{
+            method:"POST"
+        }).then(res=>res.json()).then(data=>{
+            console.log("接单返回：",data);
+            if(data.success){
+                alert("接单成功！");
+                loadAllOrder();
+            }else{
+                alert("接单失败："+ (data.msg || "未知错误"));
+            }
+        })
+    }
+
+    //完成工单
+    function finishOrder(id){
+        if(!confirm("确认标记为已完成？")) return;
+        fetch(`/api/repair/finish/${id}`,{
+            method:"POST"
+        }).then(res=>res.json()).then(data=>{
+            console.log("完成返回：",data);
+            if(data.success){
+                alert("工单已完成！");
+                loadAllOrder();
+            }else{
+                alert("完成失败："+ (data.msg || "未知错误"));
+            }
+        })
+    }
+
+    //删除工单
+    function deleteOrder(id){
+        if(!confirm("确定删除这条工单？删除后不可恢复！")) return;
+        fetch(`/api/repair/delete/${id}?repairerId=${loginUser.id}`,{
+            method:"POST"
+        }).then(res=>res.json()).then(data=>{
+            console.log("删除返回：",data);
+            if(data.success){
+                alert("删除成功");
+                loadAllOrder();
+            }else{
+                alert("删除失败："+ (data.msg || "删除失败"));
+            }
+        })
+    }
+
+    function prevPage(){
+        if(orderPageNum > 1){
+            orderPageNum--;
+            loadAllOrder();
+        }
+    }
+    function nextPage(){
+        orderPageNum++;
+        loadAllOrder();
+    }
+
+    function logout(){
+        localStorage.removeItem("loginUser");
+        location.href="/login.html";
+    }
+</script>
+</body>
+</html>

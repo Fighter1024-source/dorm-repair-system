@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员后台管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei"}
+        body{padding:30px;background:#f7fafc}
+        .container{max-width:1200px;margin:0 auto}
+        .header{background:#805ad5;color:#fff;padding:16px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+        .box{background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 10px #00000010;margin-bottom:20px}
+        table{width:100%;border-collapse:collapse}
+        th,td{border:1px solid #e2e8f0;padding:12px;text-align:center}
+        th{background:#edf2f7}
+        button{padding:6px 10px;background:#805ad5;color:#fff;border:none;border-radius:4px;cursor:pointer;margin:2px}
+        .logout{background:#e53e3e}
+        .page{margin-top:15px;text-align:center}
+        .form-row{margin-bottom:16px;display:flex;gap:8px;align-items:center}
+        input,select{padding:8px;border:1px solid #cbd5e0;border-radius:6px}
+        .preview-img{width:80px;cursor:pointer}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>管理员后台管理</h2>
+        <div>
+            <span id="userName"></span>
+            <button class="logout" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="box">
+        <h3>工单状态统计图表</h3>
+        <div id="chart" style="width:100%;height:300px;"></div>
+    </div>
+    <div class="box">
+        <h3>所有报修工单信息</h3>
+        <table>
+            <thead>
+            <tr><th>工单ID</th><th>宿舍号</th><th>报修内容</th><th>图片</th><th>状态</th><th>提交时间</th></tr>
+            </thead>
+            <tbody id="repairTable"></tbody>
+        </table>
+        <div class="page">
+            <button onclick="repairPrev()">上一页</button>
+            <span id="repairPageInfo"></span>
+            <button onclick="repairNext()">下一页</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let loginUser = null;
+    let userPage = 1;
+    let userSize = 5;
+    let repairPage = 1;
+    let repairSize =5;
+    let chartDom = document.getElementById('chart');
+    let myChart = echarts.init(chartDom);
+
+    try{
+        let storageStr = localStorage.getItem("loginUser");
+        if(storageStr){
+            loginUser = JSON.parse(storageStr);
+            console.log("管理员登录信息：",loginUser);
+        }
+    }catch(e){
+        localStorage.removeItem("loginUser");
+    }
+
+    //管理员角色校验 admin
+    if(!loginUser || loginUser.role !== "admin"){
+        location.href="/login.html";
+    }else{
+        document.getElementById("userName").innerText = "欢迎："+ loginUser.account;
+        loadUserList();
+        loadRepairList();
+        loadChart();
+    }
+
+    //加载统计饼图【从后端接口动态读取数据】
+    function loadChart(){
+        fetch("/api/repair/count")
+            .then(res=>res.json())
+            .then(data=>{
+                if(data.success){
+                    let waitNum = data.data.wait ?? 0;
+                    let doingNum = data.data.doing ?? 0;
+                    let finishNum = data.data.finish ?? 0;
+                    let option = {
+                        title:{text:"工单状态统计"},
+                        tooltip:{trigger: 'item'},
+                        series:[{
+                            type:'pie',
+                            radius:'60%',
+                            data:[
+                                {value:waitNum,name:'待维修'},
+                                {value:doingNum,name:'维修中'},
+                                {value:finishNum,name:'已完成'}
+                            ]
+                        }]
+                    };
+                    myChart.setOption(option);
+                }else{
+                    setTestChart();
+                }
+            }).catch(err=>{
+            console.log("图表接口异常",err);
+            setTestChart();
+        })
+    }
+
+    //接口失败时展示默认测试饼图
+    function setTestChart(){
+        myChart.setOption({
+            title:{text:"工单状态统计"},
+            tooltip:{trigger: 'item'},
+            series:[{
+                type:'pie',
+                radius:'60%',
+                data:[
+                    {value:1,name:'待维修'},
+                    {value:1,name:'维修中'},
+                    {value:1,name:'已完成'}
+                ]
+            }]
+        })
+    }
+
+    //加载用户列表
+    function loadUserList(){
+        fetch(`/api/user/page?pageNum=${userPage}&pageSize=${userSize}`)
+            .then(res=>res.json()).then(data=>{
+            if(!data || !data.data || !data.data.records){
+                document.getElementById("userTable").innerHTML = "<tr><td colspan='5'>暂无用户</td></tr>";
+                document.getElementById("userPageInfo").innerText = `第${userPage}页 / 总共0条`;
+                return;
+            }
+            let list = data.data.records;
+            let total = data.data.total;
+            let html = "";
+            list.forEach(item=>{
+                html += `<tr>
+                    <td>${item.id}</td>
+                    <td>${item.account}</td>
+                    <td>${item.name}</td>
+                    <td>${item.role}</td>
+                    <td><button onclick="delUser(${item.id})">删除</button></td>
+                </tr>`;
+            })
+            document.getElementById("userTable").innerHTML = html;
+            document.getElementById("userPageInfo").innerText=`第${userPage}页 / 总共${total}条`;
+        })
+    }
+
+    //加载全部工单
+    function loadRepairList(){
+        fetch(`/api/repair/allPage?pageNum=${repairPage}&pageSize=${repairSize}`)
+            .then(res=>res.json()).then(data=>{
+            if(!data || !data.data || !data.data.records){
+                document.getElementById("repairTable").innerHTML = "<tr><td colspan='6'>暂无报修工单</td></tr>";
+                document.getElementById("repairPageInfo").innerText = `第${repairPage}页 / 总共0条`;
+                return;
+            }
+            let list = data.data.records;
+            let total = data.data.total;
+            let html = "";
+            list.forEach(item=>{
+                let imgHtml = item.imgUrl ? `<img class="preview-img" src="${item.imgUrl}" onclick="window.open('${item.imgUrl}')">`:"无";
+                html += `<tr>
+                    <td>${item.id}</td>
+                    <td>${item.dormNo}</td>
+                    <td>${item.repairContent}</td>
+                    <td>${imgHtml}</td>
+                    <td>${item.status}</td>
+                    <td>${item.createTime}</td>
+                </tr>`;
+            })
+            document.getElementById("repairTable").innerHTML = html;
+            document.getElementById("repairPageInfo").innerText=`第${repairPage}页 / 总共${total}条`;
+        })
+    }
+
+    //新增用户
+    function addUser(){
+        let account = document.getElementById("addAccount").value.trim();
+        let pwd = document.getElementById("addPwd").value.trim();
+        let name = document.getElementById("addName").value.trim();
+        let role = document.getElementById("addRole").value;
+        if(!account || !pwd || !name){
+            alert("信息不能为空");
+            return;
+        }
+        fetch("/api/user/add",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({account,pwd,name,role})
+        }).then(res=>res.json()).then(data=>{
+            if(data.success){
+                alert("新增成功");
+                loadUserList();
+                loadChart(); //新增用户不影响工单，这里可以保留也可以删掉
+            }else{
+                alert(data.msg||"新增失败");
+            }
+        })
+    }
+
+    //删除用户
+    function delUser(id){
+        if(!confirm("确认删除？")) return;
+        fetch(`/api/user/del/${id}`,{method:"POST"})
+            .then(res=>res.json()).then(data=>{
+            if(data.success){
+                alert("删除成功");
+                loadUserList();
+            }
+        })
+    }
+
+    //用户分页
+    function userPrev(){if(userPage>1){userPage--;loadUserList()}}
+    function userNext(){userPage++;loadUserList()}
+    //工单分页
+    function repairPrev(){if(repairPage>1){repairPage--;loadRepairList()}}
+    function repairNext(){repairPage++;loadRepairList()}
+
+    //退出登录
+    function logout(){
+        localStorage.clear();
+        location.href="/login.html";
+    }
+</script>
+</body>
+</html>
