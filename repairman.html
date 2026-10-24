@@ -2,24 +2,141 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>维修人员工作台</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif}
-        body{padding:30px;background:#f7fafc}
-        .container{max-width:1100px;margin:0 auto}
-        .header{background:#28a745;color:#fff;padding:14px 24px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:18px}
-        .logout-btn{background:#444;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer}
-        .box{background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 12px #00000012}
-        h3{margin-bottom:16px}
-        table{width:100%;border-collapse:collapse}
-        th,td{border:1px solid #eee;padding:10px;text-align:center;font-size:14px}
-        th{background:#eef5fb}
-        img{max-width:80px;max-height:80px;object-fit:cover;border-radius:4px}
-        .btn-group{margin-top:18px;text-align:center}
-        button{padding:6px 12px;border:none;border-radius:4px;cursor:pointer;margin:0 4px}
-        .btn-accept{background:#409eff;color:#fff}
-        .btn-finish{background:#67c23a;color:#fff}
-        .btn-del{background:#f56c6c;color:#fff}
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:"Microsoft Yahei", "PingFang SC", sans-serif;
+        }
+        body{
+            padding:30px;
+            background: linear-gradient(135deg, #d4f7e1 0%, #e9faf1 100%);
+        }
+        .container{
+            max-width:1100px;
+            margin:0 auto;
+        }
+        .header{
+            background: linear-gradient(135deg, #57c485, #34a46c);
+            color:#fff;
+            padding:18px 24px;
+            border-radius:20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:24px;
+            box-shadow: 0 10px 24px rgba(52, 164, 108, 0.22);
+        }
+        .header span{
+            font-size:20px;
+            font-weight:600;
+        }
+        .header > div{
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+        .header > div span{
+            font-size:15px;
+            font-weight:normal;
+        }
+        .logout-btn{
+            background:#f06565;
+            color:#fff;
+            border:none;
+            padding:9px 16px;
+            border-radius:14px;
+            cursor:pointer;
+            font-size:14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow:0 6px 12px rgba(229, 62, 62, 0.22);
+        }
+        .logout-btn:hover{
+            transform: translateY(-2px);
+        }
+        .box{
+            background:#fff;
+            padding:28px;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(87, 155, 118, 0.15);
+        }
+        h3{
+            margin-bottom:20px;
+            color:#2f4f3a;
+            font-size:18px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        h3::before{
+            content: "🔧";
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            border-radius:14px;
+            overflow:hidden;
+        }
+        th,td{
+            border:1px solid #e4f5ec;
+            padding:14px 10px;
+            text-align:center;
+            font-size:14px;
+        }
+        th{
+            background:#edf9f2;
+            color:#2f4f3a;
+            font-weight:600;
+        }
+        tr:nth-child(even){
+            background:#f8fffb;
+        }
+        img{
+            max-width:80px;
+            max-height:80px;
+            object-fit:cover;
+            border-radius:8px;
+            border:1px solid #e4f5ec;
+            cursor:pointer;
+        }
+        .btn-group{
+            margin-top:20px;
+            text-align:center;
+        }
+        button{
+            padding:8px 14px;
+            border:none;
+            border-radius:12px;
+            cursor:pointer;
+            margin:0 4px;
+            font-size:14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover{
+            transform: translateY(-2px);
+        }
+        .btn-accept{
+            background:#409eff;
+            color:#fff;
+            box-shadow:0 4px 10px rgba(64,158,255,0.25);
+        }
+        .btn-finish{
+            background:#67c23a;
+            color:#fff;
+            box-shadow:0 4px 10px rgba(103,194,58,0.25);
+        }
+        .btn-del{
+            background:#f56c6c;
+            color:#fff;
+            box-shadow:0 4px 10px rgba(245,108,108,0.25);
+        }
+        .btn-group button{
+            background:#b2c9be;
+            color:#fff;
+        }
     </style>
 </head>
 <body>
@@ -72,6 +189,8 @@
     }
 
     if(!loginUser || loginUser.role !== "repairman"){
+        alert("你不是维修人员，禁止访问该页面！");
+        localStorage.removeItem("loginUser");
         location.href="/login.html";
     }else{
         document.getElementById("welcome").innerText = "欢迎维修员：" + loginUser.account;
@@ -94,7 +213,7 @@
                 list.forEach(item=>{
                     let imgHtml = "无";
                     if(item.imgUrl){
-                        imgHtml = `<img src="${item.imgUrl}" alt="报修图片">`;
+                        imgHtml = `<img src="${item.imgUrl}" alt="报修图片" onclick="window.open('${item.imgUrl}')">`;
                     }
                     let opBtn = "";
                     if(item.status === "待接单"){

@@ -3,163 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宿舍报修系统-登录</title>
+    <title>宿舍报修系统 - 登录</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft Yahei", sans-serif;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
         }
+
         body {
-            background-color: #f0f2f5;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #d4f7e1 0%, #a7e9c6 45%, #7ed9a8 100%);
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
+
+        body::before,
+        body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.55);
+            z-index: 0;
+        }
+
+        body::before {
+            width: 280px;
+            height: 280px;
+            top: -80px;
+            left: -60px;
+        }
+
+        body::after {
+            width: 200px;
+            height: 200px;
+            bottom: -60px;
+            right: -40px;
+        }
+
         .login-card {
-            width: 360px;
+            width: 380px;
             background: #ffffff;
-            padding: 30px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(87, 155, 118, 0.25);
+            padding: 36px 32px;
+            position: relative;
+            z-index: 1;
         }
-        .login-card h3 {
+
+        .logo-area {
             text-align: center;
-            font-size: 20px;
-            color: #333;
             margin-bottom: 24px;
         }
-        .form-item {
-            margin-bottom: 16px;
+
+        .logo-badge {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #9be2b7, #57c485);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 24px rgba(87, 196, 133, 0.45);
+            margin-bottom: 14px;
         }
-        .form-item label {
-            display: block;
-            font-size: 14px;
-            color: #444;
+
+        .logo-badge span {
+            font-size: 30px;
+        }
+
+        .login-card h1 {
+            font-size: 22px;
+            color: #2f4f3a;
             margin-bottom: 6px;
         }
-        .form-item input,
-        .form-item select {
+
+        .login-card .subtitle {
+            font-size: 13px;
+            color: #7d9487;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #4f6b5c;
+            margin-bottom: 8px;
+        }
+
+        .field {
+            position: relative;
+        }
+
+        .field input {
             width: 100%;
-            height: 36px;
-            padding: 0 10px;
-            border: 1px solid #dcdfe6;
-            border-radius: 4px;
+            padding: 13px 16px 13px 42px;
+            border: 2px solid #e4f5ec;
+            border-radius: 14px;
             font-size: 14px;
-        }
-        .form-item input:focus,
-        .form-item select:focus {
+            background: #f8fffb;
             outline: none;
-            border-color: #409eff;
+            transition: all 0.25s ease;
         }
+
+        .field input:focus {
+            border-color: #57c485;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(87, 196, 133, 0.18);
+        }
+
+        .field .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #89b59c;
+        }
+
         .login-btn {
             width: 100%;
-            height: 40px;
-            background-color: #409eff;
+            padding: 13px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #57c485, #34a46c);
             color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 14px;
             font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 12px 24px rgba(52, 164, 108, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
         .login-btn:hover {
-            background-color: #66b1ff;
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px rgba(52, 164, 108, 0.45);
         }
-        .link-box {
+
+        .tips {
             text-align: center;
-            margin-top: 16px;
-            font-size: 14px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #7d9487;
         }
-        .link-box a {
-            color: #409eff;
+
+        .tips a {
+            color: #34a46c;
             text-decoration: none;
+            font-weight: 600;
         }
-        .msg {
-            text-align: center;
-            margin-bottom:12px;
-            font-size:14px;
-        }
-        .err {
-            color:#f56c6c;
-        }
-        .ok {
-            color:#67c23a;
+
+        .tips a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
+
 <div class="login-card">
-    <h3>宿舍报修系统登录</h3>
-    <div id="msg" class="msg"></div>
-    <form id="loginForm">
-        <div class="form-item">
-            <label>账号</label>
-            <input type="text" name="account" placeholder="请输入账号" required>
+    <div class="logo-area">
+        <div class="logo-badge">
+            <span>🏢</span>
         </div>
-        <div class="form-item">
-            <label>密码</label>
-            <input type="password" name="password" placeholder="请输入密码" required>
+        <h1>宿舍报修系统</h1>
+        <p class="subtitle">欢迎回来，登录继续使用</p>
+    </div>
+
+    <div class="form-group">
+        <label>账号</label>
+        <div class="field">
+            <span class="icon">👤</span>
+            <input type="text" id="account" placeholder="请输入账号">
         </div>
-        <div class="form-item">
-            <label>角色</label>
-            <select name="role">
-                <option value="student">学生</option>
-                <option value="repairman">维修人员</option>
-                <option value="admin">管理员</option>
-            </select>
+    </div>
+
+    <div class="form-group">
+        <label>密码</label>
+        <div class="field">
+            <span class="icon">🔒</span>
+            <input type="password" id="pwd" placeholder="请输入密码">
         </div>
-        <button type="submit" class="login-btn">登录</button>
-    </form>
-    <div class="link-box">
-        没有账号？<a href="/register.html">立即注册</a>
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">登 录</button>
+
+    <div class="tips">
+        还没有账号？<a href="register.html">立即注册</a>
     </div>
 </div>
 
 <script>
-    const form = document.getElementById('loginForm');
-    const msgDom = document.getElementById('msg');
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        msgDom.innerText = '';
-        msgDom.className = 'msg';
-        const fd = new FormData(form);
-        const data = Object.fromEntries(fd.entries());
-        try {
-            const res = await fetch('/api/user/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            const result = await res.json();
-            console.log("后端返回：", result);
-            if (result.success) {
-                msgDom.innerText = '登录成功，正在跳转...';
-                msgDom.classList.add('ok');
-                localStorage.setItem("loginUser", JSON.stringify(result.data));
-                let user = result.data;
-                setTimeout(()=>{
-                    if(user.role === "student"){
-                        location.href="/student.html";
-                    }else if(user.role === "repairman"){
-                        location.href="/repairman.html";
-                    }else if(user.role === "admin"){
-                        location.href="/admin.html";
-                    }
-                },800);
-            } else {
-                msgDom.innerText = result.msg || '登录失败';
-                msgDom.classList.add('err');
-            }
-        } catch (err) {
-            msgDom.innerText = '请求失败，请检查服务';
-            msgDom.classList.add('err');
-            console.error(err);
+    function doLogin(){
+        let account = document.getElementById("account").value.trim();
+        let pwd = document.getElementById("pwd").value.trim();
+
+        if(!account || !pwd){
+            alert("账号密码不能为空");
+            return;
         }
+
+        fetch("/api/user/login",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({account, password:pwd})
+        })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    localStorage.setItem("loginUser", JSON.stringify(data.data));
+                    let role = data.data.role;
+
+                    if(role === "student"){
+                        location.href = "/student.html";
+                    }else if(role === "repairman"){
+                        location.href = "/repairman.html";
+                    }else if(role === "admin"){
+                        location.href = "/admin.html";
+                    }else{
+                        alert("用户角色异常！");
+                        localStorage.removeItem("loginUser");
+                    }
+                }else{
+                    alert(data.msg);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("登录请求失败，请检查后端是否启动");
+            });
     }
 </script>
+
 </body>
 </html>

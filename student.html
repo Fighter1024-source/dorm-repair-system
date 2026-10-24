@@ -2,26 +2,154 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学生报修中心</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei"}
-        body{padding:30px;background:#f7fafc}
-        .container{max-width:1100px;margin:0 auto}
-        .header{background:#3182ce;color:#fff;padding:16px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-        .box{background:#fff;padding:24px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 10px #00000010}
-        h3{margin-bottom:16px;color:#2d3748}
-        .row{margin-bottom:14px}
-        label{display:block;margin-bottom:6px;color:#4a5568}
-        input,textarea{width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:15px}
-        button{padding:10px 20px;background:#3182ce;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:2px}
-        .reset{background:#718096;}
-        .logout{background:#e53e3e}
-        table{width:100%;border-collapse:collapse;margin-top:10px}
-        th,td{border:1px solid #e2e8f0;padding:12px;text-align:center}
-        th{background:#edf2f7}
-        .page{margin-top:15px;text-align:center}
-        .tip{color:red;font-size:14px}
-        .img-preview{width:80px;cursor:pointer;}
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:"Microsoft Yahei", "PingFang SC", sans-serif;
+        }
+        body{
+            padding:30px;
+            background: linear-gradient(135deg, #d4f7e1 0%, #e9faf1 100%);
+        }
+        .container{
+            max-width:1100px;
+            margin:0 auto;
+        }
+        .header{
+            background: linear-gradient(135deg, #57c485, #34a46c);
+            color:#fff;
+            padding:18px 24px;
+            border-radius:20px;
+            margin-bottom:24px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            box-shadow: 0 10px 24px rgba(52, 164, 108, 0.22);
+        }
+        .header h2{
+            font-size:22px;
+            font-weight:600;
+        }
+        .header span{
+            font-size:15px;
+            margin-right:14px;
+        }
+        .box{
+            background:#fff;
+            padding:28px;
+            border-radius:20px;
+            margin-bottom:24px;
+            box-shadow:0 10px 30px rgba(87, 155, 118, 0.15);
+        }
+        h3{
+            margin-bottom:20px;
+            color:#2f4f3a;
+            font-size:18px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        h3::before{
+            content: "🛠️";
+        }
+        .box:last-of-type h3::before{
+            content: "📋";
+        }
+        .row{
+            margin-bottom:18px;
+        }
+        label{
+            display:block;
+            margin-bottom:8px;
+            color:#4f6b5c;
+            font-size:14px;
+        }
+        input,textarea{
+            width:100%;
+            padding:13px 16px;
+            border:2px solid #e4f5ec;
+            border-radius:14px;
+            font-size:15px;
+            background:#f8fffb;
+            outline:none;
+            transition: all 0.25s ease;
+        }
+        input:focus,textarea:focus{
+            border-color:#57c485;
+            box-shadow:0 0 0 4px rgba(87, 196, 133, 0.18);
+            background:#ffffff;
+        }
+        button{
+            padding:11px 22px;
+            border:none;
+            border-radius:14px;
+            cursor:pointer;
+            margin:4px;
+            font-size:15px;
+            font-weight:500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover{
+            transform: translateY(-2px);
+        }
+        .submit{
+            background: linear-gradient(135deg, #57c485, #34a46c);
+            color:#fff;
+            box-shadow:0 8px 16px rgba(52, 164, 108, 0.28);
+        }
+        .reset{
+            background:#b2c9be;
+            color:#fff;
+        }
+        .logout{
+            background:#f06565;
+            color:#fff;
+            box-shadow:0 6px 12px rgba(229, 62, 62, 0.22);
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:12px;
+            border-radius:14px;
+            overflow:hidden;
+        }
+        th,td{
+            border:1px solid #e4f5ec;
+            padding:14px 10px;
+            text-align:center;
+            font-size:14px;
+        }
+        th{
+            background:#edf9f2;
+            color:#2f4f3a;
+            font-weight:600;
+        }
+        tr:nth-child(even){
+            background:#f8fffb;
+        }
+        .page{
+            margin-top:20px;
+            text-align:center;
+        }
+        .tip{
+            color:#e53e3e;
+            font-size:13px;
+            margin-top:4px;
+        }
+        .img-preview{
+            width:80px;
+            cursor:pointer;
+            border-radius:8px;
+            border:1px solid #e4f5ec;
+        }
+        /* 文件选择框美化 */
+        input[type="file"]{
+            padding:8px;
+        }
     </style>
 </head>
 <body>
@@ -49,7 +177,7 @@
             <label>上传故障图片（可选）</label>
             <input type="file" id="imgFile" accept="image/*">
         </div>
-        <button onclick="submitOrder()">提交报修</button>
+        <button class="submit" onclick="submitOrder()">提交报修</button>
         <button class="reset" onclick="resetForm()">重置</button>
     </div>
     <div class="box">
@@ -72,9 +200,7 @@
     const pageSize = 5;
     let imgBase64 = "";
     let loginUser = null;
-    const MAX_IMG_SIZE = 2 * 1024 * 1024; // 限制最大2MB
-
-    // 安全读取localStorage，捕获异常，防止页面卡死
+    const MAX_IMG_SIZE = 2 * 1024 * 1024;
     try{
         let storageStr = localStorage.getItem("loginUser");
         if(storageStr){
@@ -85,8 +211,10 @@
         localStorage.removeItem("loginUser");
     }
 
-    // 校验登录状态
-    if(!loginUser){
+    // ========== 角色守卫【重点】只有student可以访问 ==========
+    if(!loginUser || loginUser.role !== "student"){
+        alert("你不是学生，禁止访问该页面！");
+        localStorage.removeItem("loginUser");
         location.href="/login.html";
     }else{
         let showName = loginUser.realName || loginUser.account;
@@ -94,7 +222,7 @@
         loadOrder();
     }
 
-    //图片选择，转base64 + 图片大小校验
+    //图片选择
     document.getElementById("imgFile").onchange = function(e){
         let file = e.target.files[0];
         if(!file) {
@@ -104,7 +232,7 @@
         // 判断图片大小
         if(file.size > MAX_IMG_SIZE){
             alert("图片过大！最大只能上传2MB，请压缩图片后重试");
-            this.value = ""; //清空文件选择框
+            this.value = "";
             imgBase64 = "";
             return;
         }
@@ -142,7 +270,6 @@
         }).then(res=>res.json()).then(data=>{
             if(data.success){
                 alert("报修提交成功！");
-                //清空表单
                 resetForm();
                 loadOrder();
             }else{
@@ -153,8 +280,6 @@
             alert("提交失败");
         })
     }
-
-    // 重置表单函数
     function resetForm(){
         document.getElementById("dormNo").value = "";
         document.getElementById("content").value = "";

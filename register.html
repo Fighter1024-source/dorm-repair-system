@@ -9,119 +9,214 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft Yahei", sans-serif;
+            font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
         }
         body {
-            background-color: #f0f2f5;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #d4f7e1 0%, #a7e9c6 45%, #7ed9a8 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            position: relative;
+            overflow: hidden;
         }
-        .login-card {
-            width: 360px;
+        /* 背景可爱装饰圆点 */
+        body::before,
+        body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.55);
+            z-index: 0;
+        }
+        body::before {
+            width: 280px;
+            height: 280px;
+            top: -80px;
+            left: -60px;
+        }
+        body::after {
+            width: 200px;
+            height: 200px;
+            bottom: -60px;
+            right: -40px;
+        }
+        .reg-card {
+            width: 380px;
             background: #ffffff;
-            padding: 30px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 36px 32px;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(87, 155, 118, 0.25);
+            position: relative;
+            z-index: 1;
         }
-        .login-card h3 {
+        .logo-area {
             text-align: center;
-            font-size: 20px;
-            color: #333;
             margin-bottom: 24px;
+        }
+        .logo-badge {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #9be2b7, #57c485);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 24px rgba(87, 196, 133, 0.45);
+            margin-bottom: 14px;
+        }
+        .logo-badge span {
+            font-size: 30px;
+        }
+        .reg-card h3 {
+            font-size: 22px;
+            color: #2f4f3a;
+            margin-bottom: 6px;
+        }
+        .subtitle {
+            font-size: 13px;
+            color: #7d9487;
         }
         .form-item {
             margin-bottom: 16px;
         }
         .form-item label {
             display: block;
-            font-size: 14px;
-            color: #444;
-            margin-bottom: 6px;
+            font-size: 13px;
+            color: #4f6b5c;
+            margin-bottom: 8px;
         }
-        .form-item input,
-        .form-item select {
+        .field {
+            position: relative;
+        }
+        .field input,
+        .field select {
             width: 100%;
-            height: 36px;
-            padding: 0 10px;
-            border: 1px solid #dcdfe6;
-            border-radius: 4px;
+            padding: 13px 16px 13px 42px;
+            border: 2px solid #e4f5ec;
+            border-radius: 14px;
             font-size: 14px;
-        }
-        .form-item input:focus,
-        .form-item select:focus {
+            background: #f8fffb;
             outline: none;
-            border-color: #409eff;
+            transition: all 0.25s ease;
         }
-        .login-btn {
+        .field input:focus,
+        .field select:focus {
+            border-color: #57c485;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(87, 196, 133, 0.18);
+        }
+        .field .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #89b59c;
+        }
+        .reg-btn {
             width: 100%;
-            height: 40px;
-            background-color: #409eff;
+            padding: 13px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #57c485, #34a46c);
             color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 14px;
             font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 12px 24px rgba(52, 164, 108, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .login-btn:hover {
-            background-color: #66b1ff;
+        .reg-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px rgba(52, 164, 108, 0.45);
         }
         .link-box {
             text-align: center;
-            margin-top: 16px;
-            font-size: 14px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #7d9487;
         }
         .link-box a {
-            color: #409eff;
+            color: #34a46c;
             text-decoration: none;
+            font-weight: 600;
+        }
+        .link-box a:hover {
+            text-decoration: underline;
         }
         .msg {
             text-align: center;
-            margin-bottom:12px;
-            font-size:14px;
+            margin-bottom: 12px;
+            font-size: 13px;
         }
         .err {
-            color:#f56c6c;
+            color: #f56c6c;
         }
         .ok {
-            color:#67c23a;
+            color: #67c23a;
         }
     </style>
 </head>
 <body>
-<div class="login-card">
-    <h3>宿舍报修系统注册</h3>
+<div class="reg-card">
+    <div class="logo-area">
+        <div class="logo-badge">
+            <span>📝</span>
+        </div>
+        <h3>宿舍报修系统注册</h3>
+        <p class="subtitle">填写信息，创建账号</p>
+    </div>
     <div id="msg" class="msg"></div>
     <form id="regForm">
         <div class="form-item">
             <label>账号</label>
-            <input type="text" name="account" placeholder="请输入账号" required>
+            <div class="field">
+                <span class="icon">👤</span>
+                <input type="text" name="account" placeholder="请输入账号" required>
+            </div>
         </div>
         <div class="form-item">
             <label>密码</label>
-            <input type="password" name="password" placeholder="请输入密码" required>
+            <div class="field">
+                <span class="icon">🔒</span>
+                <input type="password" name="password" placeholder="请输入密码" required>
+            </div>
         </div>
         <div class="form-item">
             <label>确认密码</label>
-            <input type="password" name="checkPwd" placeholder="再次输入密码" required>
+            <div class="field">
+                <span class="icon">🔐</span>
+                <input type="password" name="checkPwd" placeholder="再次输入密码" required>
+            </div>
         </div>
         <div class="form-item">
             <label>姓名</label>
-            <input type="text" name="realName" placeholder="请输入姓名">
+            <div class="field">
+                <span class="icon">🙋</span>
+                <input type="text" name="realName" placeholder="请输入姓名">
+            </div>
         </div>
         <div class="form-item">
             <label>手机号</label>
-            <input type="text" name="phone" placeholder="请输入手机号">
+            <div class="field">
+                <span class="icon">📞</span>
+                <input type="text" name="phone" placeholder="请输入手机号">
+            </div>
         </div>
         <div class="form-item">
             <label>角色</label>
-            <select name="role">
-                <option value="student">学生</option>
-                <option value="repairman">维修人员</option>
-            </select>
+            <div class="field">
+                <span class="icon">📋</span>
+                <select name="role">
+                    <option value="student">学生</option>
+                    <option value="repairman">维修人员</option>
+                </select>
+            </div>
         </div>
-        <button type="submit" class="login-btn">注册</button>
+        <button type="submit" class="reg-btn">注 册</button>
     </form>
     <div class="link-box">
         已有账号？<a href="/login.html">去登录</a>
@@ -156,7 +251,6 @@
                 body: JSON.stringify(data)
             });
             const result = await res.json();
-            // 和登录接口保持一致，统一用success判断（推荐）
             if (result.success) {
                 msgDom.innerText = '注册成功！跳转登录...';
                 msgDom.classList.add('ok');
